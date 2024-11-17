@@ -1,0 +1,34 @@
+[
+    {
+      "name": "Coxinha",
+      "description": "Coxinha de frango com catupiry",
+      "price": 6.00,
+      "type": "Salgado"
+    },
+    {
+      "name": "Empada de Palmito",
+      "description": "Empada recheada com palmito e azeitonas",
+      "price": 5.00,
+      "type": "Salgado"
+    },
+    {
+      "name": "Pastel de Carne",
+      "description": "Pastel recheado com carne moída e temperos",
+      "price": 4.50,
+      "type": "Salgado"
+    },
+    {
+      "name": "Suco de Laranja",
+      "description": "Suco natural de laranja",
+      "price": 5.00,
+      "type": "Bebida"
+    },
+    {
+      "name": "Lasanha",
+      "description": "Lasanha de carne com molho de tomate e queijo",
+      "price": 20.00,
+      "type": "Prato a Ser Feito",
+      "preparationTime": 25
+    }
+  ]
+  

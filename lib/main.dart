@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/menu_screen.dart';
-import 'screens/admin_screen.dart';
 import 'screens/cart_screen.dart';
 import 'screens/payment_screen.dart';
 import 'screens/user_type_screen.dart';
@@ -25,9 +24,8 @@ class MACFEIApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/welcome': (context) => const WelcomeScreen(),
+        '/': (context) => const WelcomeScreen(),
         '/menu': (context) => const MenuScreen(),
-        '/': (context) => const AdminScreen(),
         '/payment': (context) => const PaymentScreen(),
         '/pix_payment': (context) => const PixPaymentScreen(),
         '/user_type': (context) => const UserTypeScreen(),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'queue_management_screen.dart'; // Substitua 'seu_projeto' pelo nome real do seu pacote.
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({Key? key}) : super(key: key);
@@ -9,10 +9,14 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
-  // Lista de pratos no cardápio
+  // Lista de categorias para os itens do cardápio
+  final List<String> categories = ['Bebidas', 'Pratos a Fazer', 'Salgados'];
+
+  // Lista de pratos no cardápio com categoria e tempo de preparo
   List<Map<String, dynamic>> menuItems = [
-    {'name': 'Lasanha de Queijo', 'price': 15.0, 'category': 'Prato a ser feito', 'prepTime': 20},
-    {'name': 'Café com canela', 'price': 20.0, 'category': 'Bebida'},
+    {'name': 'Prato 1', 'price': 15.0, 'category': 'Pratos a Fazer', 'prepTime': 15},
+    {'name': 'Prato 2', 'price': 20.0, 'category': 'Pratos a Fazer', 'prepTime': 20},
+    {'name': 'Bebida 1', 'price': 5.0, 'category': 'Bebidas', 'prepTime': 2},
   ];
 
   @override
@@ -20,107 +24,200 @@ class _AdminScreenState extends State<AdminScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin - Funcionario MACFEI'),
+        backgroundColor: Colors.deepOrangeAccent,
       ),
-      body: ListView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
-        children: [
-          const Text(
-            'Gerenciamento do Cardápio',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _showDishDialog();
-            },
-            child: const Text('Cadastrar ou Atualizar Prato'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _showRemoveDishDialog();
-            },
-            child: const Text('Remover Prato'),
-          ),
-          const Divider(),
-          const Text(
-            'Lista do Cardápio',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          ...menuItems.map((item) => ListTile(
-                title: Text(item['name']),
-                subtitle: Text(
-                    'Categoria: ${item['category']} | Preço: R\$ ${item['price'].toStringAsFixed(2)} ${item['category'] == 'Prato a ser feito' ? '| Tempo: ${item['prepTime']} min' : ''}'),
-              )),
-        ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Gerenciamento do Cardápio',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            _buildButton(
+              icon: Icons.add,
+              label: 'Cadastrar Prato',
+              color: Colors.green,
+              onPressed: _showAddDishDialog,
+            ),
+            const SizedBox(height: 10),
+            _buildButton(
+              icon: Icons.update,
+              label: 'Atualizar Cardápio',
+              color: Colors.blue,
+              onPressed: _showUpdateMenuDialog,
+            ),
+            const SizedBox(height: 10),
+            _buildButton(
+              icon: Icons.delete,
+              label: 'Remover Prato',
+              color: Colors.red,
+              onPressed: _showRemoveDishDialog,
+            ),
+            const Divider(height: 40, thickness: 2),
+            const Text(
+              'Gerenciamento de Pedidos',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            _buildButton(
+              icon: Icons.assignment,
+              label: 'Gerenciar Pedidos',
+              color: Colors.orange,
+              onPressed: _navigateToQueueManagementScreen,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Função para adicionar ou atualizar prato
-  void _showDishDialog({int? index}) {
-    final TextEditingController nameController = TextEditingController(
-      text: index != null ? menuItems[index]['name'] : '',
+  Widget _buildButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, size: 20),
+      label: Text(label, style: const TextStyle(fontSize: 16)),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        backgroundColor: color,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      onPressed: onPressed,
     );
-    final TextEditingController priceController = TextEditingController(
-      text: index != null ? menuItems[index]['price'].toString() : '',
-    );
-    final TextEditingController prepTimeController = TextEditingController(
-      text: index != null && menuItems[index]['category'] == 'Prato a ser feito'
-          ? menuItems[index]['prepTime'].toString()
-          : '',
-    );
+  }
 
-    String selectedCategory =
-        index != null ? menuItems[index]['category'] : 'Bebida';
+  
+  void _navigateToQueueManagementScreen() {
+  // Exemplo de lista de pedidos fictícios (substitua pelos dados reais)
+  List<Map<String, dynamic>> orders = [
+    {'id': 1, 'item': 'Prato 1', 'prepTime': 15, 'status': 'Pendente'},
+    {'id': 2, 'item': 'Prato 2', 'prepTime': 10, 'status': 'Pendente'},
+    {'id': 3, 'item': 'Bebida 1', 'prepTime': 5, 'status': 'Pendente'},
+  ];
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => QueueManagementScreen(orders: orders),
+    ),
+  );
+}
+
+  // Função para exibir um diálogo de adicionar prato
+  void _showAddDishDialog() {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController priceController = TextEditingController();
+    final TextEditingController prepTimeController = TextEditingController();
+    String selectedCategory = categories.first;
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(index != null ? 'Atualizar Prato' : 'Cadastrar Prato'),
-          content: StatefulBuilder(
-            builder: (context, setState) {
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Nome do Prato'),
-                    ),
-                    TextField(
-                      controller: priceController,
-                      decoration: const InputDecoration(labelText: 'Preço (R\$)'),
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))
-                      ],
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: selectedCategory,
-                      items: const [
-                        DropdownMenuItem(value: 'Bebida', child: Text('Bebida')),
-                        DropdownMenuItem(value: 'Salgado', child: Text('Salgado')),
-                        DropdownMenuItem(
-                            value: 'Prato a ser feito', child: Text('Prato a ser feito')),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          selectedCategory = value!;
-                        });
-                      },
-                      decoration: const InputDecoration(labelText: 'Categoria'),
-                    ),
-                    if (selectedCategory == 'Prato a ser feito')
-                      TextField(
-                        controller: prepTimeController,
-                        decoration:
-                            const InputDecoration(labelText: 'Tempo de Preparo (min)'),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                      ),
-                  ],
+          title: const Text('Cadastrar Prato'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nome do Prato',
+                    icon: Icon(Icons.restaurant),
+                  ),
+                ),
+                TextField(
+                  controller: priceController,
+                  decoration: const InputDecoration(
+                    labelText: 'Preço (R\$)',
+                    icon: Icon(Icons.attach_money),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                DropdownButtonFormField<String>(
+                  value: selectedCategory,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCategory = value!;
+                    });
+                  },
+                  items: categories.map((category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
+                  decoration: const InputDecoration(
+                    labelText: 'Categoria',
+                    icon: Icon(Icons.category),
+                  ),
+                ),
+                TextField(
+                  controller: prepTimeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Tempo de Preparo (minutos)',
+                    icon: Icon(Icons.timer),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  menuItems.add({
+                    'name': nameController.text,
+                    'price': double.parse(priceController.text),
+                    'category': selectedCategory,
+                    'prepTime': int.parse(prepTimeController.text),
+                  });
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Salvar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Função para exibir o cardápio e permitir atualizações
+  void _showUpdateMenuDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Atualizar Cardápio'),
+          content: ListView.builder(
+            shrinkWrap: true,
+            itemCount: menuItems.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(menuItems[index]['name']),
+                subtitle: Text(
+                    'R\$ ${menuItems[index]['price']} | Categoria: ${menuItems[index]['category']} | Preparo: ${menuItems[index]['prepTime']} min'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    _editDishDialog(index);
+                  },
                 ),
               );
             },
@@ -130,28 +227,7 @@ class _AdminScreenState extends State<AdminScreen> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () {
-                final newDish = {
-                  'name': nameController.text,
-                  'price': double.parse(priceController.text),
-                  'category': selectedCategory,
-                  if (selectedCategory == 'Prato a ser feito')
-                    'prepTime': int.parse(prepTimeController.text),
-                };
-
-                setState(() {
-                  if (index != null) {
-                    menuItems[index] = newDish;
-                  } else {
-                    menuItems.add(newDish);
-                  }
-                });
-                Navigator.pop(context);
-              },
-              child: const Text('Salvar'),
+              child: const Text('Fechar'),
             ),
           ],
         );
@@ -178,7 +254,6 @@ class _AdminScreenState extends State<AdminScreen> {
                     setState(() {
                       menuItems.removeAt(index);
                     });
-                    Navigator.pop(context);
                   },
                 ),
               );
@@ -190,6 +265,84 @@ class _AdminScreenState extends State<AdminScreen> {
                 Navigator.pop(context);
               },
               child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Função para editar um prato
+  void _editDishDialog(int index) {
+    final TextEditingController nameController =
+        TextEditingController(text: menuItems[index]['name']);
+    final TextEditingController priceController =
+        TextEditingController(text: menuItems[index]['price'].toString());
+    final TextEditingController prepTimeController =
+        TextEditingController(text: menuItems[index]['prepTime'].toString());
+    String selectedCategory = menuItems[index]['category'];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Editar Prato'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Nome do Prato'),
+              ),
+              TextField(
+                controller: priceController,
+                decoration: const InputDecoration(labelText: 'Preço (R\$)'),
+                keyboardType: TextInputType.number,
+              ),
+              DropdownButtonFormField<String>(
+                value: selectedCategory,
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategory = value!;
+                  });
+                },
+                items: categories.map((category) {
+                  return DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+                decoration:
+                    const InputDecoration(labelText: 'Categoria'),
+              ),
+              TextField(
+                controller: prepTimeController,
+                decoration: const InputDecoration(
+                    labelText: 'Tempo de Preparo (minutos)'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  menuItems[index] = {
+                    'name': nameController.text,
+                    'price': double.parse(priceController.text),
+                    'category': selectedCategory,
+                    'prepTime': int.parse(prepTimeController.text),
+                  };
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Salvar'),
             ),
           ],
         );
