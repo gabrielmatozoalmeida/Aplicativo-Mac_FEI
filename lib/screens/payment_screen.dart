@@ -37,8 +37,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   icon: Icons.credit_card,
                   title: 'Cadastrar Cartão',
                   onTap: () {
-                    Navigator.pushNamed(context, '/card_registration')
-                        .then((_) {
+                    Navigator.pushNamed(context, '/card_registration').then((_) {
                       // Simula que o cartão foi cadastrado
                       setState(() {
                         isCardRegistered = true;
@@ -71,8 +70,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (isCreditCard) 
-                const Text('Selecione o número de parcelas:'),
+              if (isCreditCard) const Text('Selecione o número de parcelas:'),
               if (isCreditCard && totalAmount > 10)
                 DropdownButton<int>(
                   value: selectedInstallment,
@@ -119,11 +117,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   List<DropdownMenuItem<int>> _generateInstallments() {
-    const double minInstallmentValue = 2.0; // Valor mínimo de parcela
-    int maxInstallments = (totalAmount / minInstallmentValue).floor();
+    if (!isCreditCard || totalAmount <= 10) {
+      // Se não for crédito ou o valor for menor que 10, não permite parcelamento.
+      return [];
+    }
 
-    return List.generate(maxInstallments.clamp(1, 12), (index) {
-      final parcelas = index + 1; // Número de parcelas
+    // A cada R$ 10 acima de R$ 10, aumenta em duas parcelas.
+    int maxInstallments = 2; // Inicia com 2 parcelas para o mínimo de R$ 10
+    double additionalInstallments = (totalAmount - 10) / 10;
+    maxInstallments += (additionalInstallments.floor() * 2);
+
+    // Limita a 12 parcelas como padrão.
+    maxInstallments = maxInstallments.clamp(2, 12);
+
+    return List.generate(maxInstallments, (index) {
+      final parcelas = index + 1; // Número de parcelas começa de 1
       final parcelaValor = (totalAmount / parcelas).toStringAsFixed(2);
       return DropdownMenuItem(
         value: parcelas,
