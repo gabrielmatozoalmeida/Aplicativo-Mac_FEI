@@ -6,7 +6,7 @@ import 'screens/payment_screen.dart';
 import 'screens/user_type_screen.dart';
 import 'screens/pix_payment_screen.dart';
 import 'screens/card_registration_screen.dart';
-//import 'screens/schedule_pickup_screen.dart';
+import 'screens/schedule_pickup_screen.dart';
 
 void main() {
   runApp(const MACFEIApp());

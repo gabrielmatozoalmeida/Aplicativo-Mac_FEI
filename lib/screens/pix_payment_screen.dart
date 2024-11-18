@@ -72,11 +72,11 @@ class PixPaymentScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Após confirmar o pagamento, navega para SchedulePickupScreen
+                // Após confirmar o pagamento, navega para PixSchedulePickupScreen
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SchedulePickupScreen(
+                    builder: (context) => PixSchedulePickupScreen(
                       args: {
                         'orderType': 'prato', // Exemplo: tipo do pedido
                         'items': [
@@ -97,11 +97,11 @@ class PixPaymentScreen extends StatelessWidget {
   }
 }
 
-// Exemplo de SchedulePickupScreen para testar integração
-class SchedulePickupScreen extends StatelessWidget {
+// Renomeada para PixSchedulePickupScreen
+class PixSchedulePickupScreen extends StatelessWidget {
   final dynamic args;
 
-  const SchedulePickupScreen({Key? key, required this.args}) : super(key: key);
+  const PixSchedulePickupScreen({Key? key, required this.args}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
