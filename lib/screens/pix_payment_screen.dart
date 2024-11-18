@@ -4,9 +4,13 @@ import 'package:flutter/services.dart';
 class PixPaymentScreen extends StatelessWidget {
   const PixPaymentScreen({Key? key}) : super(key: key);
 
-  // Método para gerar um link Pix com um código de exemplo
+  // Método para gerar um link Pix mais realista
   String generatePixLink() {
-    return "https://bank.com/pix?code=PIX123456789";
+    const pixKey = "abc123456789@bank.com"; // Exemplo de chave Pix
+    const amount = "25.50"; // Valor do pagamento
+    const description = "Pagamento_MacFei";
+
+    return "https://meupix.com.br/pix?key=$pixKey&amount=$amount&desc=$description";
   }
 
   @override
@@ -53,7 +57,11 @@ class PixPaymentScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         pixLink,
-                        style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const Icon(Icons.copy, color: Colors.green),
@@ -64,11 +72,46 @@ class PixPaymentScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context, 'Pagamento Iniciado');
+                // Após confirmar o pagamento, navega para SchedulePickupScreen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SchedulePickupScreen(
+                      args: {
+                        'orderType': 'prato', // Exemplo: tipo do pedido
+                        'items': [
+                          {'name': 'Prato A', 'prepTime': 10},
+                          {'name': 'Prato B', 'prepTime': 5},
+                        ], // Lista de itens
+                      },
+                    ),
+                  ),
+                );
               },
               child: const Text('Confirmar Pagamento'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// Exemplo de SchedulePickupScreen para testar integração
+class SchedulePickupScreen extends StatelessWidget {
+  final dynamic args;
+
+  const SchedulePickupScreen({Key? key, required this.args}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Agendamento')),
+      body: Center(
+        child: Text(
+          'Pedido confirmado e agendado!\n\n'
+          'Detalhes: ${args['orderType']} - ${args['items']}',
+          textAlign: TextAlign.center,
         ),
       ),
     );

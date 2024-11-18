@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/admin_screen.dart';
 import 'screens/menu_screen.dart';
-import 'screens/queue_management_screen.dart'; // Import da tela de gerenciamento de filas
+import 'screens/queue_management_screen.dart';
 
 void main() {
   runApp(const MACFEIAdminApp());
@@ -19,10 +19,11 @@ class MACFEIAdminApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const AdminScreen(), // Tela inicial para o admin
+        // Removido `const` porque AdminScreen é um StatefulWidget
+        '/': (context) => AdminScreen(),
         '/menu': (context) => const MenuScreen(),
-        // Adiciona uma rota para a tela de gerenciamento de filas
-        '/queueManagement': (context) => QueueManagementScreen(orders: []),
+        '/queueManagement': (context) => QueueManagementScreen(
+              orders: []),
       },
     );
   }

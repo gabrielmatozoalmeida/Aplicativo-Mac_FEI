@@ -18,9 +18,45 @@
       "type": "Salgado"
     },
     {
+      "name": "Quibe",
+      "description": "Quibe de carne com hortelã",
+      "price": 4.00,
+      "type": "Salgado"
+    },
+    {
+      "name": "Esfiha de Carne",
+      "description": "Esfiha aberta de carne com temperos especiais",
+      "price": 3.50,
+      "type": "Salgado"
+    },
+    {
       "name": "Suco de Laranja",
       "description": "Suco natural de laranja",
       "price": 5.00,
+      "type": "Bebida"
+    },
+    {
+      "name": "Refrigerante",
+      "description": "Refrigerante de cola, 350ml",
+      "price": 4.00,
+      "type": "Bebida"
+    },
+    {
+      "name": "Água Mineral",
+      "description": "Água mineral sem gás, 500ml",
+      "price": 3.00,
+      "type": "Bebida"
+    },
+    {
+      "name": "Café Expresso",
+      "description": "Café expresso tradicional",
+      "price": 3.50,
+      "type": "Bebida"
+    },
+    {
+      "name": "Chá Gelado",
+      "description": "Chá gelado de limão com hortelã",
+      "price": 4.50,
       "type": "Bebida"
     },
     {
@@ -29,6 +65,20 @@
       "price": 20.00,
       "type": "Prato a Ser Feito",
       "preparationTime": 25
+    },
+    {
+      "name": "Espaguete à Bolonhesa",
+      "description": "Espaguete com molho bolonhesa e queijo parmesão",
+      "price": 22.00,
+      "type": "Prato a Ser Feito",
+      "preparationTime": 20
+    },
+    {
+      "name": "Risoto de Cogumelos",
+      "description": "Risoto de cogumelos frescos e parmesão",
+      "price": 25.00,
+      "type": "Prato a Ser Feito",
+      "preparationTime": 30
     }
   ]
   

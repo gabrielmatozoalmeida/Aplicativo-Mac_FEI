@@ -34,7 +34,7 @@ class CardRegistrationScreen extends StatelessWidget {
               controller: _cardNumberController,
               decoration: const InputDecoration(labelText: 'Número do Cartão'),
               keyboardType: TextInputType.number,
-              maxLength: 19, // 16 números mais espaçamentos
+              maxLength: 19,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 _CardNumberInputFormatter(),
@@ -44,7 +44,7 @@ class CardRegistrationScreen extends StatelessWidget {
               controller: _expiryDateController,
               decoration: const InputDecoration(labelText: 'Validade (MM/AA)'),
               keyboardType: TextInputType.number,
-              maxLength: 5, // Formato MM/AA
+              maxLength: 5,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
                 _ExpiryDateInputFormatter(),
@@ -60,10 +60,34 @@ class CardRegistrationScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Cartão cadastrado com sucesso!')),
-                );
-                Navigator.pop(context, true);
+                final currentDate = DateTime.now();
+                final expiryDate = _expiryDateController.text;
+
+                if (expiryDate.length == 5) {
+                  final month = int.tryParse(expiryDate.substring(0, 2));
+                  final year = int.tryParse('20' + expiryDate.substring(3, 5));
+
+                  if (month != null && year != null) {
+                    if (year > currentDate.year || (year == currentDate.year && month >= currentDate.month)) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Cartão cadastrado com sucesso!')),
+                      );
+                      Navigator.pop(context, true);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Data de validade inválida.')),
+                      );
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Formato de data inválido.')),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Formato de data inválido.')),
+                  );
+                }
               },
               child: const Text('Cadastrar Cartão'),
             ),
