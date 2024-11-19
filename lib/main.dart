@@ -29,7 +29,7 @@ class MACFEIApp extends StatelessWidget {
         '/payment': (context) => const PaymentScreen(),
         '/pix_payment': (context) => const PixPaymentScreen(),
         '/user_type': (context) => const UserTypeScreen(),
-        '/card_registration': (context) => CardRegistrationScreen(),
+        '/card_registration': (context) => const CardRegistrationScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/cart') {

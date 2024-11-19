@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
 // Renomear a importação para evitar conflitos
-import 'package:macfei_app/screens/card_registration_screen.dart'
-    as cardRegistration;
+import 'package:macfei_app/screens/card_registration_screen.dart' as cardRegistration;
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({Key? key}) : super(key: key);
 
   @override
-  State<PaymentScreen> createState() => _RegisteredCardsScreenState();
+  State<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _RegisteredCardsScreenState extends State<PaymentScreen> {
-  final List<Map<String, dynamic>> registeredCards =
-      []; // Lista de cartões cadastrados
+class _PaymentScreenState extends State<PaymentScreen> {
+  final List<Map<String, dynamic>> registeredCards = []; // Lista de cartões cadastrados
   int? selectedCardIndex; // Índice do cartão selecionado
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cartões Cadastrados'),
+        title: const Text('Formas de Pagamento'),
       ),
       body: Column(
         children: [
@@ -67,7 +65,7 @@ class _RegisteredCardsScreenState extends State<PaymentScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                ElevatedButton(
+                ElevatedButton.icon(
                   onPressed: () async {
                     final newCard = await Navigator.push<Map<String, dynamic>>(
                       context,
@@ -81,16 +79,26 @@ class _RegisteredCardsScreenState extends State<PaymentScreen> {
                       });
                     }
                   },
-                  child: const Text('Cadastrar Novo Cartão'),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Cadastrar Novo Cartão'),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
+                ElevatedButton.icon(
                   onPressed: selectedCardIndex == null
                       ? null
                       : () {
                           _confirmPayment(context, registeredCards[selectedCardIndex!]);
                         },
-                  child: const Text('Ir ao Pagamento'),
+                  icon: const Icon(Icons.payment),
+                  label: const Text('Pagar com Cartão Selecionado'),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/pix_payment');
+                  },
+                  icon: const Icon(Icons.qr_code),
+                  label: const Text('Pagar com PIX'),
                 ),
               ],
             ),
@@ -131,7 +139,7 @@ class _RegisteredCardsScreenState extends State<PaymentScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
-          'Pagamento realizado com sucesso!!',
+          'Pagamento realizado com sucesso!',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.green,
