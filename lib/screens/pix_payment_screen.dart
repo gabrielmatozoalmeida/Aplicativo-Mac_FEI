@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 class PixPaymentScreen extends StatelessWidget {
   const PixPaymentScreen({Key? key}) : super(key: key);
 
-  // Método para gerar um link Pix mais realista
   String generatePixLink() {
     const pixKey = "abc123456789@bank.com"; // Exemplo de chave Pix
     const amount = "25.50"; // Valor do pagamento
@@ -72,7 +71,6 @@ class PixPaymentScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Após confirmar o pagamento, navega para PixSchedulePickupScreen
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -80,8 +78,9 @@ class PixPaymentScreen extends StatelessWidget {
                       args: {
                         'orderType': 'prato', // Exemplo: tipo do pedido
                         'items': [
-                          {'name': 'Prato A', 'prepTime': 10},
-                          {'name': 'Prato B', 'prepTime': 5},
+                          {'name': 'Salgado', 'prepTime': 0, 'isReady': true},
+                          {'name': 'Prato Feito', 'prepTime': 15, 'isReady': false},
+                          {'name': 'Bebida', 'prepTime': 0, 'isReady': true},
                         ], // Lista de itens
                       },
                     ),
@@ -97,7 +96,6 @@ class PixPaymentScreen extends StatelessWidget {
   }
 }
 
-// Renomeada para PixSchedulePickupScreen
 class PixSchedulePickupScreen extends StatelessWidget {
   final dynamic args;
 
@@ -105,13 +103,49 @@ class PixSchedulePickupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List items = args['items'];
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Agendamento')),
-      body: Center(
-        child: Text(
-          'Pedido confirmado e agendado!\n\n'
-          'Detalhes: ${args['orderType']} - ${args['items']}',
-          textAlign: TextAlign.center,
+      appBar: AppBar(title: const Text('Status do Pedido')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Histórico de Pedidos',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  final bool isReady = item['isReady'] ?? false;
+
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      title: Text(item['name']),
+                      subtitle: isReady
+                          ? const Text(
+                              'Pronto para retirada',
+                              style: TextStyle(color: Colors.green),
+                            )
+                          : Text(
+                              'Tempo de preparo: ${item['prepTime']} minutos',
+                              style: const TextStyle(color: Colors.orange),
+                            ),
+                      trailing: isReady
+                          ? const Icon(Icons.check_circle, color: Colors.green)
+                          : const Icon(Icons.timer, color: Colors.orange),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

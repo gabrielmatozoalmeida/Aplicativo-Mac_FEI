@@ -1,58 +1,97 @@
 import 'package:flutter/material.dart';
+// Renomear a importação para evitar conflitos
+import 'package:macfei_app/screens/card_registration_screen.dart'
+    as cardRegistration;
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({Key? key}) : super(key: key);
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  State<PaymentScreen> createState() => _RegisteredCardsScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
-  int selectedInstallment = 1;
-  double totalAmount = 12.0; // Valor total da compra
-  bool isCardRegistered = false; // Indica se o cartão foi cadastrado
-  bool isCreditCard = true; // Indica o tipo de cartão (crédito ou débito)
+class _RegisteredCardsScreenState extends State<PaymentScreen> {
+  final List<Map<String, dynamic>> registeredCards =
+      []; // Lista de cartões cadastrados
+  int? selectedCardIndex; // Índice do cartão selecionado
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pagamento'),
+        title: const Text('Cartões Cadastrados'),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: ListView(
+            child: Padding(
               padding: const EdgeInsets.all(16.0),
-              children: [
-                PaymentOption(
-                  icon: Icons.qr_code,
-                  title: 'Pagar com Pix',
-                  onTap: () {
-                    Navigator.pushNamed(context, '/pix_payment');
-                  },
-                ),
-                PaymentOption(
-                  icon: Icons.credit_card,
-                  title: 'Cadastrar Cartão',
-                  onTap: () {
-                    Navigator.pushNamed(context, '/card_registration').then((_) {
-                      // Simula que o cartão foi cadastrado
-                      setState(() {
-                        isCardRegistered = true;
-                      });
-                    });
-                  },
-                ),
-                if (isCardRegistered)
-                  PaymentOption(
-                    icon: Icons.credit_card,
-                    title: 'Cartão Cadastrado',
-                    onTap: () {
-                      _showCardPaymentDialog(context);
+              child: ListView(
+                children: [
+                  if (registeredCards.isEmpty)
+                    const Text(
+                      'Nenhum cartão cadastrado ainda.',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  if (registeredCards.isNotEmpty)
+                    const Text(
+                      'Selecione um cartão:',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ...registeredCards.asMap().entries.map(
+                    (entry) {
+                      final index = entry.key;
+                      final card = entry.value;
+                      return RadioListTile<int>(
+                        value: index,
+                        groupValue: selectedCardIndex,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCardIndex = value;
+                          });
+                        },
+                        title: Text(
+                            '${card['type']} - Final ${card['number'].substring(card['number'].length - 4)}'),
+                        subtitle: Text(
+                            'Validade: ${card['expiry']} | CVV: ${card['cvv']}'),
+                        secondary: const Icon(Icons.credit_card),
+                      );
                     },
                   ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    final newCard = await Navigator.push<Map<String, dynamic>>(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const cardRegistration.CardRegistrationScreen()),
+                    );
+                    if (newCard != null) {
+                      setState(() {
+                        registeredCards.add(newCard);
+                      });
+                    }
+                  },
+                  child: const Text('Cadastrar Novo Cartão'),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: selectedCardIndex == null
+                      ? null
+                      : () {
+                          _confirmPayment(context, registeredCards[selectedCardIndex!]);
+                        },
+                  child: const Text('Ir ao Pagamento'),
+                ),
               ],
             ),
           ),
@@ -61,52 +100,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  void _showCardPaymentDialog(BuildContext context) {
+  void _confirmPayment(BuildContext context, Map<String, dynamic> card) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Pagamento com Cartão'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isCreditCard) const Text('Selecione o número de parcelas:'),
-              if (isCreditCard && totalAmount > 10)
-                DropdownButton<int>(
-                  value: selectedInstallment,
-                  items: _generateInstallments(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedInstallment = value;
-                      });
-                    }
-                  },
-                ),
-              if (!isCreditCard)
-                const Text(
-                  'Pagamento será realizado no débito (à vista).',
-                  style: TextStyle(fontSize: 16),
-                ),
-              if (isCreditCard && totalAmount <= 10)
-                const Text(
-                  'Parcelamento disponível apenas para valores acima de R\$ 10.',
-                  style: TextStyle(color: Colors.red),
-                ),
-            ],
-          ),
+          title: Text('Pagamento com ${card['type']}'),
+          content: Text(
+              'Deseja realizar o pagamento com o cartão de número final ${card['number'].substring(card['number'].length - 4)}?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _showErrorDialog(context);
-              },
+              onPressed: () => Navigator.pop(context), // Cancela e fecha o diálogo
               child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
-                _showSuccessDialog(context);
+                Navigator.pop(context); // Fecha o diálogo
+                _processPayment(context); // Exibe a notificação e navega
               },
               child: const Text('Confirmar'),
             ),
@@ -116,106 +126,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  List<DropdownMenuItem<int>> _generateInstallments() {
-    if (!isCreditCard || totalAmount <= 10) {
-      // Se não for crédito ou o valor for menor que 10, não permite parcelamento.
-      return [];
-    }
-
-    // A cada R$ 10 acima de R$ 10, aumenta em duas parcelas.
-    int maxInstallments = 2; // Inicia com 2 parcelas para o mínimo de R$ 10
-    double additionalInstallments = (totalAmount - 10) / 10;
-    maxInstallments += (additionalInstallments.floor() * 2);
-
-    // Limita a 12 parcelas como padrão.
-    maxInstallments = maxInstallments.clamp(2, 12);
-
-    return List.generate(maxInstallments, (index) {
-      final parcelas = index + 1; // Número de parcelas começa de 1
-      final parcelaValor = (totalAmount / parcelas).toStringAsFixed(2);
-      return DropdownMenuItem(
-        value: parcelas,
-        child: Text('$parcelas parcelas - R\$ $parcelaValor'),
-      );
-    });
-  }
-
-  void _showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text(
-            'Pagamento Concluído',
-            style: TextStyle(color: Colors.green), // Título em verde
-          ),
-          content: const Text('Seu pedido foi pago com sucesso.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(
-                  context,
-                  '/schedule_pickup',
-                  arguments: {
-                    'orderType': 'prato', // Exemplo: Tipo do pedido
-                    'isReady': false,     // Exemplo: Pedido ainda em preparo
-                  },
-                );
-              },
-              child: const Text('Ok'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showErrorDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text(
-            'Pagamento Cancelado',
-            style: TextStyle(color: Colors.red), // Título em vermelho
-          ),
-          content: const Text('O pagamento não foi realizado.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Ok'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class PaymentOption extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-
-  const PaymentOption({
-    Key? key,
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      child: ListTile(
-        leading: Icon(icon, size: 32),
-        title: Text(title, style: const TextStyle(fontSize: 18)),
-        onTap: onTap,
+  void _processPayment(BuildContext context) {
+    // Exibe a notificação de sucesso
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Pagamento realizado com sucesso!!',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
       ),
     );
+
+    // Aguarda o tempo do SnackBar antes de redirecionar
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushNamed(context, '/schedule_pickup');
+    });
   }
 }
