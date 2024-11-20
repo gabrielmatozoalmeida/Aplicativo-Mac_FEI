@@ -44,13 +44,10 @@ class MACFEIApp extends StatelessWidget {
             ),
           );
         } else if (settings.name == '/schedule_pickup') {
-          // Passa os argumentos como um único mapa
-          final args = settings.arguments as Map<String, dynamic>;
-
+          // Passa os argumentos para a tela
+          final args = settings.arguments as Map<String, dynamic>? ?? {};
           return MaterialPageRoute(
-            builder: (context) => SchedulePickupScreen(
-              args: args,
-            ),
+            builder: (context) => SchedulePickupScreen(args: args),
           );
         }
         return null; // Retorna nulo para rotas desconhecidas

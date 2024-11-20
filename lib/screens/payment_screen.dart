@@ -17,7 +17,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Formas de Pagamento'),
+        title: const Text('Seleção de Pagamento'),
       ),
       body: Column(
         children: [
@@ -34,8 +34,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   if (registeredCards.isNotEmpty)
                     const Text(
                       'Selecione um cartão:',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ...registeredCards.asMap().entries.map(
                     (entry) {
@@ -124,7 +123,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context); // Fecha o diálogo
-                _processPayment(context); // Exibe a notificação e navega
+                _processPayment(context, card); // Processa o pagamento e redireciona
               },
               child: const Text('Confirmar'),
             ),
@@ -134,7 +133,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  void _processPayment(BuildContext context) {
+  void _processPayment(BuildContext context, Map<String, dynamic> card) {
     // Exibe a notificação de sucesso
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -143,13 +142,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
+        duration: Duration(seconds: 2), // A mensagem será exibida por 2 segundos
       ),
     );
 
-    // Aguarda o tempo do SnackBar antes de redirecionar
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushNamed(context, '/schedule_pickup');
-    });
+    // Redireciona para a tela '/schedule_pickup' com informações do pedido
+    Navigator.pushNamed(
+      context,
+      '/schedule_pickup',
+      arguments: {
+        'orderDetails': {
+          'paymentMethod': card['type'],
+          'lastDigits': card['number'].substring(card['number'].length - 4),
+          'status': 'Pago',
+        },
+      },
+    );
   }
 }
